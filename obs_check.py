@@ -2,9 +2,11 @@ from pyproj import Geod
 import numpy as np
 import pandas as pd
 from matplotlib.path import Path
+import streamlit as st
+import io
 
-
-def destination_point(lat0, lon0, bearing_deg, distance_m):
+def obstacle_check(icao, rwy, obs_lat, obs_lon, height, df):
+    def destination_point(lat0, lon0, bearing_deg, distance_m):
     """
     Calculates the destination point from an initial geodetic position,
     given a bearing (degrees) and distance (meters).
@@ -15,8 +17,6 @@ def destination_point(lat0, lon0, bearing_deg, distance_m):
     geod = Geod(ellps="WGS84")
     lon1, lat1, _ = geod.fwd(lon0, lat0, bearing_deg, distance_m)
     return lat1, lon1
-
-def obstacle_check(icao, rwy, obs_lat, obs_lon, height, df):
     def get_airport_info(df, icao, rwy):
       thr_lon = df.loc[(df['Icao'] == icao) & (df['Name4'] == rwy) & (df['Ident'].isnull())]['ThresholdLongitude'].values[0]
       thr_lat = df.loc[(df['Icao'] == icao) & (df['Name4'] == rwy) & (df['Ident'].isnull())]['ThresholdLatitude'].values[0]
@@ -125,10 +125,43 @@ def obstacle_check(icao, rwy, obs_lat, obs_lon, height, df):
     return inside, longitudinal_distance_start_of_tora, longitudinal_distance_end_of_tora, height_from_threshold
 
 
-df = pd.read_excel("/content/drive/MyDrive/ICAO/ICAO.xlsm", engine="openpyxl")
-inside, longitudinal_distance_start_of_tora, longitudinal_distance_end_of_tora, height_from_threshold = obstacle_check("LGAV", "03R", 37.958293, 23.976225, 120, df)
+st.title('Aerodrome Obstacle Analysis Tool ✈️')
 
-print(inside)
-print(longitudinal_distance_start_of_tora)
-print(longitudinal_distance_end_of_tora)
-print(height_from_threshold)
+# Input fields
+icao = st.text_input('ICAO Code', 'EDDM')
+rwy = st.text_input('Runway Name', '08L')
+obs_lat = st.number_input('Obstacle Latitude', format="%.6f")
+obs_lon = st.number_input('Obstacle Longitude', format="%.6f")
+height = st.number_input('Obstacle Height (ft)')
+uploaded_file = st.file_uploader("Upload your .xlsm database file", type=['xlsm', 'xlsx'])
+
+if uploaded_file is not None:
+    try:
+        # Read the uploaded file into a DataFrame
+        df_database = pd.read_excel(uploaded_file, engine='openpyxl')
+        
+        # Display a message to confirm the file was loaded
+        st.success('Database file uploaded successfully!')
+        
+        # You can optionally display the first few rows for confirmation
+        # st.subheader("Database Preview")
+        # st.dataframe(df_database.head())
+        
+        # Button to run the analysis after the file is loaded
+        if st.button('Run Analysis'):
+            # Pass all the inputs, including the DataFrame, to your function
+            is_inside, dist_start, dist_end = obstacle_check(
+                icao, rwy, obs_lat, obs_lon, height, df_database
+            )
+            
+            # Display the results
+            if is_inside:
+                st.success('✅ The obstacle is INSIDE the takeoff funnel.')
+            else:
+                st.warning('⚠️ The obstacle is OUTSIDE the takeoff funnel.')
+            
+            st.info(f'**Longitudinal distance from runway start:** {dist_start:.2f} meters')
+            st.info(f'**Longitudinal distance from TORA end:** {dist_end:.2f} meters')
+            
+    except Exception as e:
+        st.error(f"An error occurred while processing the file: {e}")
