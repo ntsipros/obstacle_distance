@@ -6,19 +6,21 @@ import streamlit as st
 import io
 
 def obstacle_check(icao, rwy, obs_lat, obs_lon, height, df):
+    
     def destination_point(lat0, lon0, bearing_deg, distance_m):
-    """
-    Calculates the destination point from an initial geodetic position,
-    given a bearing (degrees) and distance (meters).
-
-    Returns:
-    - lat1, lon1: destination coordinates (degrees)
-    """
-    geod = Geod(ellps="WGS84")
-    lon1, lat1, _ = geod.fwd(lon0, lat0, bearing_deg, distance_m)
-    return lat1, lon1
+        """
+        Calculates the destination point from an initial geodetic position,
+        given a bearing (degrees) and distance (meters).
+    
+        Returns:
+        - lat1, lon1: destination coordinates (degrees)
+        """
+        geod = Geod(ellps="WGS84")
+        lon1, lat1, _ = geod.fwd(lon0, lat0, bearing_deg, distance_m)
+        return lat1, lon1
+    
     def get_airport_info(df, icao, rwy):
-      thr_lon = df.loc[(df['Icao'] == icao) & (df['Name4'] == rwy) & (df['Ident'].isnull())]['ThresholdLongitude'].values[0]
+        thr_lon = df.loc[(df['Icao'] == icao) & (df['Name4'] == rwy) & (df['Ident'].isnull())]['ThresholdLongitude'].values[0]
       thr_lat = df.loc[(df['Icao'] == icao) & (df['Name4'] == rwy) & (df['Ident'].isnull())]['ThresholdLatitude'].values[0]
       magnetic_variation = df.loc[(df['Icao'] == icao)]['MagneticVariation'].values[0]
       direction = magnetic_variation[-1]
