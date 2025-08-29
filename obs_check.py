@@ -129,41 +129,34 @@ def obstacle_check(icao, rwy, obs_lat, obs_lon, height, df):
 
 st.title('Aerodrome Obstacle Analysis Tool ✈️')
 
+DATABASE_PATH = 'data/ICAO.xlsm'
 # Input fields
-icao = st.text_input('ICAO Code', 'EDDM')
-rwy = st.text_input('Runway Name', '08L')
-obs_lat = st.number_input('Obstacle Latitude', format="%.6f")
-obs_lon = st.number_input('Obstacle Longitude', format="%.6f")
-height = st.number_input('Obstacle Height (ft)')
-uploaded_file = st.file_uploader("Upload your .xlsm database file", type=['xlsm', 'xlsx'])
+try:
+    df_database = pd.read_excel(DATABASE_PATH, engine='openpyxl')
+    st.success('Database loaded successfully!')
 
-if uploaded_file is not None:
-    try:
-        # Read the uploaded file into a DataFrame
-        df_database = pd.read_excel(uploaded_file, engine='openpyxl')
+    # Input fields
+    icao = st.text_input('ICAO Code', 'EDDM')
+    rwy = st.text_input('Runway Name', '08L')
+    obs_lat = st.number_input('Obstacle Latitude', format="%.6f")
+    obs_lon = st.number_input('Obstacle Longitude', format="%.6f")
+    height = st.number_input('Obstacle Height (ft)')
+
+    if st.button('Run Analysis'):
+        is_inside, dist_start, dist_end, height_from_threshold = obstacle_check(
+            icao, rwy, obs_lat, obs_lon, height, df_database
+        )
         
-        # Display a message to confirm the file was loaded
-        st.success('Database file uploaded successfully!')
-        
-        # You can optionally display the first few rows for confirmation
-        # st.subheader("Database Preview")
-        # st.dataframe(df_database.head())
-        
-        # Button to run the analysis after the file is loaded
-        if st.button('Run Analysis'):
-            # Pass all the inputs, including the DataFrame, to your function
-            is_inside, dist_start, dist_end = obstacle_check(
-                icao, rwy, obs_lat, obs_lon, height, df_database
-            )
+        # Display the results
+        if is_inside:
+            st.success('✅ The obstacle is INSIDE the takeoff funnel.')
+        else:
+            st.warning('⚠️ The obstacle is OUTSIDE the takeoff funnel.')
             
-            # Display the results
-            if is_inside:
-                st.success('✅ The obstacle is INSIDE the takeoff funnel.')
-            else:
-                st.warning('⚠️ The obstacle is OUTSIDE the takeoff funnel.')
-            
-            st.info(f'**Longitudinal distance from runway start:** {dist_start:.2f} meters')
-            st.info(f'**Longitudinal distance from TORA end:** {dist_end:.2f} meters')
-            
-    except Exception as e:
-        st.error(f"An error occurred while processing the file: {e}")
+        st.info(f'**Longitudinal distance from runway start:** {dist_start:.2f} meters')
+        st.info(f'**Longitudinal distance from TORA end:** {dist_end:.2f} meters')
+
+except FileNotFoundError:
+    st.error(f"Database file not found. Please ensure '{DATABASE_PATH}' is in your GitHub repository.")
+except Exception as e:
+    st.error(f"An error occurred: {e}")
