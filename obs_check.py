@@ -19,7 +19,7 @@ def obstacle_check(icao, rwy, obs_lat, obs_lon, height, df):
         lon1, lat1, _ = geod.fwd(lon0, lat0, bearing_deg, distance_m)
         return lat1, lon1
     
-    def get_airport_info(df, icao, rwy, height):
+    def get_airport_info(df, icao, rwy):
       thr_lon = df.loc[(df['Icao'] == icao) & (df['Name4'] == rwy) & (df['Ident'].isnull())]['ThresholdLongitude'].values[0]
       thr_lat = df.loc[(df['Icao'] == icao) & (df['Name4'] == rwy) & (df['Ident'].isnull())]['ThresholdLatitude'].values[0]
       magnetic_variation = df.loc[(df['Icao'] == icao)]['MagneticVariation'].values[0]
@@ -37,7 +37,6 @@ def obstacle_check(icao, rwy, obs_lat, obs_lon, height, df):
       thr_elevation = df.loc[(df['Icao'] == icao) & (df['Name4'] == rwy)]['ThresholdElevation'].values[0]
       thr_elevation = thr_elevation*3.28084
       true_heading = magnetic_heading + magnetic_variation
-      height_from_threshold = height - thr_elevation
 
       def convert_to_decimal(coord: str) -> float:
         coord = coord.strip()
@@ -75,7 +74,7 @@ def obstacle_check(icao, rwy, obs_lat, obs_lon, height, df):
 
       end_of_tora_lat, end_of_tora_lon = destination_point(thr_lat, thr_lon, true_heading, lda)
 
-      return thr_lon, thr_lat, asda, toda, tora, lda, true_heading, end_of_tora_lat, end_of_tora_lon, height_from_threshold
+      return thr_lon, thr_lat, asda, toda, tora, lda, true_heading, end_of_tora_lat, end_of_tora_lon, thr_elevation
 
     def funnel_check(thr_lat, thr_lon, toda, obs_lat, obs_lon, true_heading):
 
@@ -124,6 +123,7 @@ def obstacle_check(icao, rwy, obs_lat, obs_lon, height, df):
     thr_lon, thr_lat, asda, toda, tora, lda, true_heading, end_of_tora_lat, end_of_tora_lon, thr_elevation = get_airport_info(df, icao, rwy)
     inside = funnel_check(thr_lat, thr_lon, toda, obs_lat, obs_lon, true_heading)
     longitudinal_distance_start_of_tora, longitudinal_distance_end_of_tora = obstacle_distances(obs_lat, obs_lon, thr_lat, thr_lon, end_of_tora_lat, end_of_tora_lon, true_heading)
+    height_from_threshold = height - thr_elevation
     return inside, longitudinal_distance_start_of_tora, longitudinal_distance_end_of_tora, height_from_threshold
 
 st.title('Aerodrome Obstacle Analysis Tool ✈️')
