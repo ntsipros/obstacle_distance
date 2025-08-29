@@ -122,7 +122,6 @@ def obstacle_check(icao, rwy, obs_lat, obs_lon, height, df):
 
       return longitudinal_distance_start_of_tora, longitudinal_distance_end_of_tora
     thr_lon, thr_lat, asda, toda, tora, lda, true_heading, end_of_tora_lat, end_of_tora_lon, thr_elevation = get_airport_info(df, icao, rwy)
-    height_from_threshold = height - thr_elevation
     inside = funnel_check(thr_lat, thr_lon, toda, obs_lat, obs_lon, true_heading)
     longitudinal_distance_start_of_tora, longitudinal_distance_end_of_tora = obstacle_distances(obs_lat, obs_lon, thr_lat, thr_lon, end_of_tora_lat, end_of_tora_lon, true_heading)
     return inside, longitudinal_distance_start_of_tora, longitudinal_distance_end_of_tora, height_from_threshold
