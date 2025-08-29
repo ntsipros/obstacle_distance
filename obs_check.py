@@ -19,7 +19,7 @@ def obstacle_check(icao, rwy, obs_lat, obs_lon, height, df):
         lon1, lat1, _ = geod.fwd(lon0, lat0, bearing_deg, distance_m)
         return lat1, lon1
     
-    def get_airport_info(df, icao, rwy):
+    def get_airport_info(df, icao, rwy, height):
       thr_lon = df.loc[(df['Icao'] == icao) & (df['Name4'] == rwy) & (df['Ident'].isnull())]['ThresholdLongitude'].values[0]
       thr_lat = df.loc[(df['Icao'] == icao) & (df['Name4'] == rwy) & (df['Ident'].isnull())]['ThresholdLatitude'].values[0]
       magnetic_variation = df.loc[(df['Icao'] == icao)]['MagneticVariation'].values[0]
