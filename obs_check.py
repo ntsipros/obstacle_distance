@@ -129,7 +129,7 @@ def obstacle_check(icao, rwy, obs_lat, obs_lon, height, df):
 
 st.title('Aerodrome Obstacle Analysis Tool ✈️')
 
-DATABASE_PATH = 'ICAO.xlsm'
+DATABASE_PATH = 'data\TEST.xlsm'
 # Input fields
 try:
     df_database = pd.read_excel(DATABASE_PATH, engine='openpyxl')
