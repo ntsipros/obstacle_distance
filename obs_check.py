@@ -150,7 +150,7 @@ if uploaded_file is not None:
         
         if st.button('Run Analysis'):
             # Pass all the inputs, including the DataFrame, to your function
-            is_inside, dist_start, dist_end = obstacle_check(
+            is_inside, dist_start, dist_end, height = obstacle_check(
                 icao_code, runway_name, obstacle_lat, obstacle_lon, obstacle_height, df_database
             )
             
