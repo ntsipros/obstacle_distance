@@ -142,7 +142,8 @@ try:
     
     # Input fields
     icao = st.text_input('ICAO Code', 'EDDM')
-    rwy = st.text_input('Runway Name', '08L')
+    available_rwys = df_database.loc[df_database["ICAO"] == icao, "RWY"].unique()
+    rwy = st.selectbox("Select Runway", available_rwys)
     st.subheader("Obstacle Coordinates (Degrees / Minutes / Seconds)")
     
     # Latitude input
