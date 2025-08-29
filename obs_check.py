@@ -206,6 +206,7 @@ try:
             
         st.info(f'**Longitudinal distance from runway start:** {dist_start:.2f} meters')
         st.info(f'**Longitudinal distance from TORA end:** {dist_end:.2f} meters')
+        st.info(f'**Altitude from Start of TORA** {height:.2f} ft')
 
 except FileNotFoundError:
     st.error(f"Database file not found. Please ensure '{DATABASE_PATH}' is in your GitHub repository.")
