@@ -126,20 +126,59 @@ def obstacle_check(icao, rwy, obs_lat, obs_lon, height, df):
     longitudinal_distance_start_of_tora, longitudinal_distance_end_of_tora = obstacle_distances(obs_lat, obs_lon, thr_lat, thr_lon, end_of_tora_lat, end_of_tora_lon, true_heading)
     return inside, longitudinal_distance_start_of_tora, longitudinal_distance_end_of_tora, height_from_threshold
 
-
 st.title('Aerodrome Obstacle Analysis Tool ✈️')
 
 DATABASE_PATH = "ICAO.xlsx"
+
+# Cached function so the file is only loaded once
+@st.cache_data
+def load_database(path):
+    return pd.read_excel(path, engine="openpyxl")
+    
 # Input fields
 try:
-    df_database = pd.read_excel(DATABASE_PATH, engine='openpyxl')
-    st.success('Database loaded successfully!')
-
+    df_database = load_database(DATABASE_PATH)
+    st.success("Database loaded successfully!")
+    
     # Input fields
     icao = st.text_input('ICAO Code', 'EDDM')
     rwy = st.text_input('Runway Name', '08L')
-    obs_lat = st.number_input('Obstacle Latitude', format="%.6f")
-    obs_lon = st.number_input('Obstacle Longitude', format="%.6f")
+    st.subheader("Obstacle Coordinates (Degrees / Minutes / Seconds)")
+    
+    # Latitude input
+    st.markdown("**Latitude**")
+    col1, col2, col3, col4 = st.columns([1,1,1,1])
+    with col1:
+        lat_deg = st.number_input("°", min_value=-90, max_value=90, value=0, key="lat_deg")
+    with col2:
+        lat_min = st.number_input("′", min_value=0, max_value=59, value=0, key="lat_min")
+    with col3:
+        lat_sec = st.number_input("″", min_value=0.0, max_value=59.999, value=0.0, key="lat_sec")
+    with col4:
+        lat_dir = st.selectbox("N/S", ["N", "S"], key="lat_dir")
+    
+    # Longitude input
+    st.markdown("**Longitude**")
+    col5, col6, col7, col8 = st.columns([1,1,1,1])
+    with col5:
+        lon_deg = st.number_input("°", min_value=-180, max_value=180, value=0, key="lon_deg")
+    with col6:
+        lon_min = st.number_input("′", min_value=0, max_value=59, value=0, key="lon_min")
+    with col7:
+        lon_sec = st.number_input("″", min_value=0.0, max_value=59.999, value=0.0, key="lon_sec")
+    with col8:
+        lon_dir = st.selectbox("E/W", ["E", "W"], key="lon_dir")
+    
+    # Convert to decimal degrees
+    def dms_to_decimal(deg, minutes, seconds, direction):
+        decimal = deg + minutes/60 + seconds/3600
+        if direction in ["S", "W"]:
+            decimal = -decimal
+        return decimal
+    
+    obs_lat = dms_to_decimal(lat_deg, lat_min, lat_sec, lat_dir)
+    obs_lon = dms_to_decimal(lon_deg, lon_min, lon_sec, lon_dir)
+
     height = st.number_input('Obstacle Height (ft)')
 
     if st.button('Run Analysis'):
