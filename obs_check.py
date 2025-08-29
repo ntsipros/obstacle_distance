@@ -153,7 +153,7 @@ try:
     with col2:
         lat_min = st.number_input("′", min_value=0, max_value=59, value=0, key="lat_min")
     with col3:
-        lat_sec = st.number_input("″", min_value=0.0, max_value=59.999, value=0.0, key="lat_sec")
+        lat_sec = st.number_input("″", min_value=0.0, max_value=59.999, value=0, key="lat_sec")
     with col4:
         lat_dir = st.selectbox("N/S", ["N", "S"], key="lat_dir")
     
@@ -165,7 +165,7 @@ try:
     with col6:
         lon_min = st.number_input("′", min_value=0, max_value=59, value=0, key="lon_min")
     with col7:
-        lon_sec = st.number_input("″", min_value=0.0, max_value=59.999, value=0.0, key="lon_sec")
+        lon_sec = st.number_input("″", min_value=0.0, max_value=59.999, value=0, key="lon_sec")
     with col8:
         lon_dir = st.selectbox("E/W", ["E", "W"], key="lon_dir")
     
