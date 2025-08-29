@@ -37,6 +37,7 @@ def obstacle_check(icao, rwy, obs_lat, obs_lon, height, df):
       thr_elevation = df.loc[(df['Icao'] == icao) & (df['Name4'] == rwy)]['ThresholdElevation'].values[0]
       thr_elevation = thr_elevation*3.28084
       true_heading = magnetic_heading + magnetic_variation
+      height_from_threshold = height - thr_elevation
 
       def convert_to_decimal(coord: str) -> float:
         coord = coord.strip()
@@ -74,7 +75,7 @@ def obstacle_check(icao, rwy, obs_lat, obs_lon, height, df):
 
       end_of_tora_lat, end_of_tora_lon = destination_point(thr_lat, thr_lon, true_heading, lda)
 
-      return thr_lon, thr_lat, asda, toda, tora, lda, true_heading, end_of_tora_lat, end_of_tora_lon, thr_elevation
+      return thr_lon, thr_lat, asda, toda, tora, lda, true_heading, end_of_tora_lat, end_of_tora_lon, height_from_threshold
 
     def funnel_check(thr_lat, thr_lon, toda, obs_lat, obs_lon, true_heading):
 
