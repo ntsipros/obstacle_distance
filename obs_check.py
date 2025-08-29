@@ -153,7 +153,7 @@ try:
     with col2:
         lat_min = st.number_input("′", min_value=0, max_value=59, value=0, key="lat_min")
     with col3:
-        lat_sec = st.number_input("″", min_value=0, max_value=60, value=0, key="lat_sec")
+        lat_sec_str = st.text_input("″ (seconds)", value="0", key="lat_sec")  # free text
     with col4:
         lat_dir = st.selectbox("N/S", ["N", "S"], key="lat_dir")
     
@@ -165,9 +165,19 @@ try:
     with col6:
         lon_min = st.number_input("′", min_value=0, max_value=59, value=0, key="lon_min")
     with col7:
-        lon_sec = st.number_input("″", min_value=0, max_value=60, value=0, key="lon_sec")
+        lon_sec_str = st.text_input("″ (seconds)", value="0", key="lon_sec")  # free text
     with col8:
         lon_dir = st.selectbox("E/W", ["E", "W"], key="lon_dir")
+    
+    # Convert safely to float
+    def safe_float(val, default=0.0):
+        try:
+            return float(val)
+        except ValueError:
+            return default
+    
+    lat_sec = safe_float(lat_sec_str)
+    lon_sec = safe_float(lon_sec_str)
     
     # Convert to decimal degrees
     def dms_to_decimal(deg, minutes, seconds, direction):
